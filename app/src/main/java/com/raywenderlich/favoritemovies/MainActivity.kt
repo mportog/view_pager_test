@@ -31,62 +31,24 @@
 package com.raywenderlich.favoritemovies
 
 import android.os.Bundle
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+    private lateinit var viewPager: ViewPager
+    private lateinit var pagerAdapter: MoviesPagerAdapter
 
-    // Get the list of movies from the JSON file
-    val movies = MovieHelper.getMoviesFromJson("movies.json", this)
-    var moviesIndex = 0
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    replaceFragment(movies, moviesIndex)
+        val movies = MovieHelper.getMoviesFromJson("movies.json", this)
 
-    val prevButton = findViewById<Button>(R.id.prevButton)
-    val nextButton = findViewById<Button>(R.id.nextButton)
+        viewPager = findViewById(R.id.viewPager)
 
-    // Disable the Prev Button when showing the first movie
-    prevButton.isEnabled = false
-
-    prevButton.setOnClickListener {
-      if (moviesIndex > 0) {
-        moviesIndex--
-
-        replaceFragment(movies, moviesIndex)
-
-        if (moviesIndex == 0) {
-          prevButton.isEnabled = false
-        }
-        if (moviesIndex == movies.size - 2) {
-          nextButton.isEnabled = true
-        }
-      }
+        pagerAdapter = MoviesPagerAdapter(supportFragmentManager, movies)
+        viewPager.adapter = pagerAdapter
     }
-
-    nextButton.setOnClickListener {
-      if (moviesIndex < movies.size - 1) {
-        moviesIndex++
-
-        replaceFragment(movies, moviesIndex)
-
-        if (moviesIndex == movies.size - 1) {
-          nextButton.isEnabled = false
-        }
-        if (moviesIndex == 1) {
-          prevButton.isEnabled = true
-        }
-      }
-    }
-  }
-
-  private fun replaceFragment(movies: ArrayList<Movie>, moviesIndex: Int) {
-    supportFragmentManager
-        .beginTransaction()
-        .replace(R.id.fragment_container, MovieFragment.newInstance(movies[moviesIndex]))
-        .commit()
-  }
 }
